@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<!-- CUSTOM CHECKBOX AND RADIO BUTTON -->
+<style>
+  .customcheck,
+  .customradio {
+    position: relative;
+    padding-left: 35px;
+    cursor: pointer;
+    font-size: 1rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    width: 25px;
+    height: 25px;
+    margin-bottom: 0;
+  }
+
+  /* Hide the browser's default checkbox */
+  .customcheck input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom checkbox */
+  .customcheck .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .customcheck:hover input~.checkmark {
+    background-color: #ccc;
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  .customcheck input:checked~.checkmark {
+    background-color: #464646;
+  }
+
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the checkmark when checked */
+  .customcheck input:checked~.checkmark:after {
+    display: block;
+  }
+
+  /* Style the checkmark/indicator */
+  .customcheck .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 8px;
+    height: 15px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  /* Hide the browser's default radio button */
+  .customradio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom radio button */
+  .customradio .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+    border-radius: 50%;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .customradio:hover input~.checkmark {
+    background-color: #ccc;
+  }
+
+  /* When the radio button is checked, add a blue background */
+  .customradio input:checked~.checkmark {
+    background-color: #464646;
+  }
+
+  /* Create the indicator (the dot/circle - hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the indicator (dot/circle) when checked */
+  .customradio input:checked~.checkmark:after {
+    display: block;
+  }
+
+  /* Style the indicator (dot/circle) */
+  .customradio .checkmark:after {
+    top: 9px;
+    left: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+  }
+</style>
+<!-- MAIN CSS -->
+<style>
+  .top_menu {
+    background: black;
+    color: white;
+    padding: 2% 0;
+  }
+
+  .top_menu .row {
+    align-items: baseline;
+  }
+
+  .has-search .form-control {
+    padding-left: 2.375rem;
+  }
+
+  .has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+  }
+
+  #content {
+    margin-top: 5%;
+  }
+
+  .center {
+    align-items: center;
+  }
+
+  .center .actions i {
+    margin-right: 5%;
+    padding: 10px;
+    background: black;
+    color: white;
+  }
+
+  .actions i {
+    padding: 10px;
+  }
+
+  .table {
+    white-space: nowrap;
+  }
+
+  .table-holder {
+    overflow-x: auto;
+  }
+
+  .table thead th {
+    border-bottom: 0px !important;
+  }
+
+  .center-cell {
+    display: flex;
+    padding-left: 0px !important;
+  }
+
+  #add_client .modal-body input {
+    margin-bottom: 5%;
+  }
+
+  #add_client_gender div {
+    margin-bottom: 2%;
+  }
+  .hide{
+    display:none;
+  }
+</style>
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous">
+  <link rel="stylesheet"
+    href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
+</head>
+
+<body>
+  <div class="top_menu">
+    <div class="container">
+      <div class="row">
+        <div class="col-4">
+          CustomerzApp
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="content"
+    class="container">
+    <div class="row center">
+      <div class="col-6 actions">
+        <i data-toggle="modal"
+          data-target="#add_client"
+          class="fa fa-lg fa-plus"></i>
+        <i class="fa fa-lg fa-trash"></i>
+      </div>
+      <div class="col-6">
+        <div class="form-group has-search">
+          <span class="fa fa-search form-control-feedback"></span>
+          <input type="text"
+            class="form-control"
+            placeholder="Find a customer">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 table-holder">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="center-cell">
+                <label class="customcheck">
+                  <input type="checkbox">
+                  <span class="checkmark"></span>
+                </label>Select
+              </th>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>Birthday</th>
+              <th>Gender</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center-cell"><label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label></td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+            <tr>
+              <td class="center-cell"><label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label></td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+            <tr>
+              <td class="center-cell">
+                <label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-12">
+        <nav aria-label="...">
+          <ul class="pagination pagination-sm">
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <!-- MODALS -->
+
+  <!--ADD CLIENT MODAL -->
+  <div class="modal fade"
+    id="add_client"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"
+      role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Enter client data</h5>
+          <button type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-6">
+              <div id="add_client_firstname"
+                class="form-group">
+                <p>First name</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_lastname"
+                class="form-group">
+                <p>Last name</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_birthday"
+                class="form-group">
+                <p>Birth day</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+
+              <div id="add_client_email"
+                class="form-group">
+                <p>Email</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_address"
+                class="form-group">
+                <p>Address</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_gender"
+                class="form-group">
+                <p>Gender</p>
+                <div id=""
+                  class="row">
+                  <div class="col-12">
+                    <label class="customradio">Male
+                      <input class="checkbox-action"
+                        checked
+                        value="MALE"
+                        name="gender"
+                        type="radio">
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                  <div class="col-12">
+                    <label class="customradio">Female
+                      <input class="checkbox-action"
+                        value="FEMALE"
+                        name="gender"
+                        type="radio">
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-success success"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-danger"
+            data-dismiss="modal">Close</button>
+          <button type="button"
+            class="btn btn-primary send">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="https://use.fontawesome.com/d3419d201b.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
+  <!-- CUSTOM SCRIPTS -->
+  <script>
+  $(document).on('click', '.page-link', function(){
+
+      var id_torender = { 'id' : $(this).attr('first_ID')};
+      console.log(id_torender);
+      $.ajax({
+        url: '/clients',
+        type : 'POST',
+        data : $.param(id_torender),
+        success: function(result) {
+           result = JSON.parse(result);
+           console.log(result)
+           $('.pagination').html(null)
+           for (let i=1; i<=result.pages; i++){
+             if(i==1){
+               $('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+i+'</a></li>')
+             }else{
+               $('.pagination').append('<li class="page-item"><a first_ID="'+((10*i)-9)+'" class="page-link" href="#">'+i+'</a></li>')
+             }
+           }
+           $('.table tbody').html(null);
+           $.each(result.data, function(key, value){
+             value.Birthday = value.Birthday.split('T')
+             let html = '<tr id="'+value.ID+'"><td class="center-cell"><label class="customcheck"><input class="checkbox-action" value="'+value.ID+'" type="checkbox"><span class="checkmark"></span></label></td><td>'+value.Firstname+'</td><td>'+value.Lastname+'</td><td>'+value.Birthday[0]+'</td><td>'+value.Gender+'</td><td>'+value.Email+'</td><td>'+value.Address+'</td><td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td></tr>';
+             $('.table tbody').append(html);
+           })
+        }
+
+      })
+
+  })
+  var  ajaxOperations = {
+    Get_clients_default : function(){
+          $.ajax({
+            url: '/clients',
+            success: function(result) {
+               result = JSON.parse(result);
+               console.log(result)
+               $('.pagination').html(null)
+               for (let i=1; i<=result.pages; i++){
+                 if(i==1){
+                   $('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+i+'</a></li>')
+                 }else{
+                   $('.pagination').append('<li class="page-item"><a first_ID="'+((10*i)-9)+'" class="page-link" href="#">'+i+'</a></li>')
+                 }
+               }
+               $('.table tbody').html(null);
+               $.each(result.data, function(key, value){
+                 value.Birthday = value.Birthday.split('T')
+                 let html = '<tr id="'+value.ID+'"><td class="center-cell"><label class="customcheck"><input class="checkbox-action" value="'+value.ID+'" type="checkbox"><span class="checkmark"></span></label></td><td>'+value.Firstname+'</td><td>'+value.Lastname+'</td><td>'+value.Birthday[0]+'</td><td>'+value.Gender+'</td><td>'+value.Email+'</td><td>'+value.Address+'</td><td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td></tr>';
+                 $('.table tbody').append(html);
+               })
+            }
+
+          })
+        }
+  }
+    ajaxOperations.Get_clients_default();
+
+    var add_client_fields = {
+      firstname: $('#add_client_firstname'),
+      lastname: $('#add_client_lastname'),
+      birthday: $('#add_client_birthday'),
+      email: $('#add_client_email'),
+      address: $('#add_client_address'),
+      gender: $('#add_client_gender')
+    }
+    $("#add_client_birthday input").datepicker({
+      dateFormat: 'dd-mm-yy'
+    });
+
+
+
+    $('#add_client .send').click(function() {
+
+      var values = {};
+      $.each(add_client_fields, function(key, value){
+        if(key=="gender"){
+          values[key]=value.find('input:checked').val();
+        }else{
+          values[key]=value.find('input').val();
+        }
+
+
+      })
+
+      console.log(values);
+      $.ajax({
+        url: '/client/add',
+        type: 'POST',
+        data: $.param(values),
+        success: function(result) {
+          result = JSON.parse(result);
+          switch (result.success) {
+            case false:
+              tools.Hide_alert($('.danger'))
+              tools.Hide_alert($('.success'))
+              $.each(result.errors, function(key, value) {
+                //console.log( + " .error")
+                var errorHolder = add_client_fields[key.toLowerCase()].find('.danger');
+                errorHolder.html(value)
+                tools.Show_alert(errorHolder, 'danger')
+                tools.Hide_alert($('.success'))
+
+              });
+              break;
+            case true:
+
+                $('#add_client .success').html('Client successfuly added')
+                add_client_fields.firstname.find('input').val('lol');
+                tools.Show_alert($('#add_client .success'), 'success', 'success')
+                tools.Hide_alert($('.danger'))
+
+            break;
+          }
+          console.log(result)
+        }
+
+      })
+    })
+
+    var tools = {
+      Show_alert: function(element, type, mainClass) {
+        element.attr('class', 'alert');
+        element.addClass('alert-' + type);
+        element.addClass(type);
+        element.removeClass('hide')
+
+      },
+      Hide_alert: function(element) {
+        element.addClass('hide')
+
+      }
+    }
+    $('.danger, .success').addClass('hide');
+
+  </script>
+</body>
+
+</html>
