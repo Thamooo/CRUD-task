@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {{ block "title" . }}
+    <title>Default page title from master layout</title>
+    {{ end }}
+    {{ include "/common/head_tags.html" . }}
+  </head>
+  <body>
+     <div class="top_menu">
+        <div class="container">
+          <div class="row">
+            <div class="col-4">
+              CustomerzApp
+            </div>
+          </div>
+        </div>
+    </div>
+    <div id="content"
+    class="container">  
+    {{ block "body" . -}}
+    </div>
+    <p>Default body content from master layout</p>
+    {{ end }}
+    {{ include "/common/modals.html" . }}
+    {{ include "/common/footer_scripts.html" . }}
+    
+  </body>
+</html>

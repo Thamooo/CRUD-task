@@ -1,0 +1,240 @@
+ <div class="modal fade"
+    id="add_client"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"
+      role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Enter client data</h5>
+          <button type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-6">
+              <div id="add_client_firstname"
+                class="form-group">
+                <p>First name</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_lastname"
+                class="form-group">
+                <p>Last name</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="calender" id="add_client_birthday"
+                class="form-group">
+                <p>Birth day</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+
+              <div id="add_client_email"
+                class="form-group">
+                <p>Email</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_address"
+                class="form-group">
+                <p>Address</p>
+                <input class="form-control"
+                  type="text" />
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div id="add_client_gender"
+                class="form-group">
+                <p>Gender</p>
+                <div id=""
+                  class="row">
+                  <div class="col-12">
+                    <label class="customradio">Male
+                      <input class=""
+                        checked
+                        value="MALE"
+                        name="gender"
+                        type="radio">
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                  <div class="col-12">
+                    <label class="customradio">Female
+                      <input class=""
+                        value="FEMALE"
+                        name="gender"
+                        type="radio">
+                      <span class="checkmark"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="alert alert-danger danger"></div>
+              </div>
+            </div>
+            <div class="col-12">
+                <div class="alert alert-success success"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-danger"
+            data-dismiss="modal">Close</button>
+          <button type="button"
+            class="btn btn-primary send">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade"
+     id="edit_client"
+     tabindex="-1"
+     role="dialog"
+     aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered"
+       role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title">Edit client data</h5>
+           <button type="button"
+             class="close"
+             data-dismiss="modal"
+             aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="modal-body">
+           <div class="row">
+             <div class="col-6">
+               <input id="editable_id" class="form-control"
+                 type="hidden" />
+               <div id="edit_client_firstname"
+                 class="form-group">
+                 <p>First name</p>
+                 <input class="form-control"
+                   type="text" />
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-6">
+               <div id="edit_client_lastname"
+                 class="form-group">
+                 <p>Last name</p>
+                 <input class="form-control"
+                   type="text" />
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-6">
+               <div class="calender" id="edit_client_birthday"
+                 class="form-group">
+                 <p>Birth day</p>
+                 <input class="form-control"
+                   type="text" />
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-6">
+
+               <div id="edit_client_email"
+                 class="form-group">
+                 <p>Email</p>
+                 <input class="form-control"
+                   type="text" />
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-6">
+               <div id="edit_client_address"
+                 class="form-group">
+                 <p>Address</p>
+                 <input class="form-control"
+                   type="text" />
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-6">
+               <div id="edit_client_gender"
+                 class="form-group">
+                 <p>Gender</p>
+                 <div id=""
+                   class="row">
+                   <div class="col-12">
+                     <label class="customradio">Male
+                       <input class=""
+                         value="MALE"
+                         name="gender"
+                         type="radio">
+                       <span class="checkmark"></span>
+                     </label>
+                   </div>
+                   <div class="col-12">
+                     <label class="customradio">Female
+                       <input class=""
+                         value="FEMALE"
+                         name="gender"
+                         type="radio">
+                       <span class="checkmark"></span>
+                     </label>
+                   </div>
+                 </div>
+                 <div class="alert alert-danger danger"></div>
+               </div>
+             </div>
+             <div class="col-12">
+                 <div class="alert alert-success success"></div>
+             </div>
+           </div>
+         </div>
+         <div class="modal-footer">
+           <button type="button"
+             class="btn btn-danger"
+             data-dismiss="modal">Close</button>
+           <button type="button"
+             class="btn btn-primary send">Save changes</button>
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <div class="modal fade" id="confirm-action" tabindex="2" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="main-text">You are about to delete one track, this procedure is irreversible.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger btn-ok">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,17 @@
+routes {
+              value_create {        # /api/v1/values
+                method = "POST"
+              }
+              value_get {           # /api/v1/values/:key
+                path = "/:key"
+
+                routes {
+                  value_update {    # /api/v1/values/:key
+                    method = "PUT"
+                  }
+                  value_delete {    # /api/v1/values/:key
+                    method = "DELETE"
+                  }
+                }
+              } # end - value_get
+            }

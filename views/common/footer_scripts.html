@@ -1,0 +1,338 @@
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="https://use.fontawesome.com/d3419d201b.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
+  <script src="/static/js/jquery-dateformat.min.js"></script>
+  <script src="/static/js/jquery.simplemodal.min"></script>
+  <!-- CUSTOM SCRIPTS -->
+  <script>
+    var id_torender = {'id' : 1};
+
+    var  ajaxOperations = {
+      Get_clients_default : function(query_data){
+            $.ajax({
+              url: '/clients/get/',
+              type : 'GET',
+              data : $.param(query_data),
+              success: function(result) {
+                 result = JSON.parse(result);
+                 console.log(result)
+                 $('.pagination').html(null)
+                 $('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+1+'</a></li>')
+
+                 $.each(result.pages, function(key, value){
+                  key = key+2
+                  $('.pagination').append('<li class="page-item"><a first_ID="'+value.ID+'" class="page-link" href="#">'+key+'</a></li>')
+
+                 })
+                 $('#last_page').html($('.page-item:last-child a').html());
+                 $('.table tbody').html(null);
+                 $.each(result.data, function(key, value){
+                   //value.Birthday = value.Birthday.split('T')
+                   value.Birthday = $.format.date(value.Birthday, "dd-MM-yyyy");
+                   $('.table tbody').append(tools.Render_Client_Row(value));
+                 })
+              }
+
+            })
+          },
+      Delete_Customers : function(query_data){
+        $.ajax({
+          url: '/clients/del',
+          type : 'POST',
+          data : $.param(query_data),
+          success: function(result) {
+             console.log(result)
+
+          }
+
+        })
+      }
+    }
+
+
+  $(document).on('click', '.page-link', function(){
+
+      id_torender['id'] = $(this).attr('first_ID');
+      $('#init_page').html($(this).html())
+      ajaxOperations.Get_clients_default(id_torender);
+
+
+  })
+  $(document).on('click', '.delete_customer', function(){
+
+      deletable_query = { 'IDs' : [$(this).attr('userid')]};
+      if (confirm('Are you sure that you want to delete?')) {
+      ajaxOperations.Delete_Customers(deletable_query)
+      ajaxOperations.Get_clients_default(id_torender);
+      } else {
+          // Do nothing!
+      }
+
+  })
+  $('#search_go').on('click',function(){
+      var str = $('#search_main').val()
+      str = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+        return letter.toUpperCase();
+      });
+      id_torender['search']=str;
+      ajaxOperations.Get_clients_default(id_torender);
+
+  })
+
+  $('#main_check').change(function(){
+    if($(this).is(':checked')==true){
+      $.each($('.checkbox-action'), function(key, value){
+        $(value).prop("checked", true)
+      })
+    }else{
+      $.each($('.checkbox-action'), function(key, value){
+        $(value).prop("checked", false)
+      })
+    }
+
+  })
+
+
+  $('.main_delete').click(function(){
+
+      var deletable = []
+
+      $.each($('.checkbox-action:checked'), function(key, value){
+        deletable[key] = $(value).val();
+      })
+
+      if (confirm('Are you sure that you want to delete '+ deletable.length +' rows?')) {
+      deletable_query = { 'IDs' : deletable};
+      console.log(deletable_query)
+      ajaxOperations.Delete_Customers(deletable_query)
+      ajaxOperations.Get_clients_default(id_torender);
+      } else {
+          // Do nothing!
+      }
+
+  })
+
+    $('.send').click(function(){
+      console.log(id_torender.id)
+      ajaxOperations.Get_clients_default(id_torender);
+    })
+
+    ajaxOperations.Get_clients_default(id_torender);
+
+    var add_client_fields = {
+      ID : 0,
+      Firstname: $('#add_client_firstname'),
+      Lastname: $('#add_client_lastname'),
+      Birthday: $('#add_client_birthday'),
+      Gender: $('#add_client_gender'),
+      Email: $('#add_client_email'),
+      Address: $('#add_client_address')
+
+    }
+
+    var edit_client_fields = {
+      ID : $('#editable_id'),
+      Firstname: $('#edit_client_firstname'),
+      Lastname: $('#edit_client_lastname'),
+      Birthday: $('#edit_client_birthday'),
+      Gender: $('#edit_client_gender'),
+      Email: $('#edit_client_email'),
+      Address: $('#edit_client_address')
+
+    }
+
+    $(".calender input").datepicker({
+      dateFormat: 'dd-mm-yy'
+    });
+
+
+
+    $(document).on('click', '.edit_customer', function(){
+
+      let $this = $(this);
+      let user_id = $(this).attr('userid');
+      $('#edit_client').modal('toggle');
+
+      let editable_user = {}
+
+      $.each(edit_client_fields, function(key, value){
+          let currentClass='.client_'+key.toLowerCase();
+          if(key != 'ID'){
+            editable_user[key]=$($this).parent().parent().find(currentClass).html()
+          }else{
+            editable_user[key]=user_id;
+          }
+
+      })
+
+      console.log(editable_user);
+
+      $.each(edit_client_fields, function(key, value){
+          if(key=="Gender"){
+            value.find('input[value="'+(editable_user[key].toUpperCase())+'"]').click();
+            //console.log(value.find('input[value="'+(editable_user[key].toUpperCase())+'"]')
+          }else if(key!='ID'){
+
+            value.find('input').val(editable_user[key]);
+          }else{
+            value.val(editable_user[key])
+          }
+      })
+
+    });
+
+    $('#edit_client .send').click(function() {
+
+
+      if (confirm('Are you sure that you want to edit?')) {
+
+      var values = {};
+      $.each(edit_client_fields, function(key, value){
+        if(key=="Gender"){
+          values[key]=value.find('input:checked').val();
+        }else if(key!='ID'){
+
+          values[key]=value.find('input').val();
+
+        }else{
+          values[key]=value.val();
+        }
+
+
+      })
+
+      console.log(values);
+      console.log(JSON.stringify(values));
+      $.ajax({
+        url: '/clients/edit',
+        type: 'POST',
+        //data: 'value='+JSON.stringify(values),
+        data : $.param(values),
+        success: function(result) {
+
+          switch (result.success) {
+            case "false":
+
+              tools.Hide_alert($('.danger'))
+              tools.Hide_alert($('.success'))
+              if(result.errors != null){
+              $.each(result.errors, function(key, value) {
+                console.log(value);
+                //console.log( + " .error")
+                var errorHolder = edit_client_fields[key].find('.danger');
+                errorHolder.html(value)
+                tools.Show_alert(errorHolder, 'danger')
+                tools.Hide_alert($('.success'))
+
+              });
+            }else{
+              $('#edit_client .success').html('Internal server error')
+              tools.Show_alert($('#edit_client .success'), 'danger')
+            }
+            break;
+            case "true":
+
+                $('#edit_client .success').html('Client successfuly edited')
+                tools.Show_alert($('#edit_client .success'), 'success')
+                tools.Hide_alert($('.danger'))
+
+            break;
+          }
+          console.log(result)
+        }
+
+        })
+      } else {
+          // Do nothing!
+      }
+    })
+
+    $('#add_client .send').click(function() {
+
+
+
+      var values = {};
+      $.each(add_client_fields, function(key, value){
+        if(key=="Gender"){
+          values[key]=value.find('input:checked').val();
+        }else if(key!='ID'){
+
+          values[key]=value.find('input').val();
+        }else{
+          values[key]=value
+        }
+
+
+      })
+
+      console.log(values);
+      console.log(JSON.stringify(values));
+      $.ajax({
+        url: '/clients/add',
+        type: 'POST',
+        //data: 'value='+JSON.stringify(values),
+        data : $.param(values),
+        success: function(result) {
+
+          switch (result.success) {
+            case "false":
+
+              tools.Hide_alert($('.danger'))
+              tools.Hide_alert($('.success'))
+              if(result.errors != null){
+              $.each(result.errors, function(key, value) {
+                console.log(value);
+                //console.log( + " .error")
+                var errorHolder = add_client_fields[key].find('.danger');
+                errorHolder.html(value)
+                tools.Show_alert(errorHolder, 'danger')
+                tools.Hide_alert($('.success'))
+
+              });
+            }else{
+              $('#add_client .success').html('Internal server error')
+              tools.Show_alert($('#add_client .success'), 'danger')
+            }
+            break;
+            case "true":
+
+                $('#add_client .success').html('Client successfuly added')
+                tools.Show_alert($('#add_client .success'), 'success')
+                tools.Hide_alert($('.danger'))
+
+            break;
+          }
+          console.log(result)
+        }
+
+      })
+    })
+
+    var tools = {
+      Show_alert: function(element, type) {
+        element.attr('class', 'alert');
+        element.addClass('alert-' + type);
+        element.addClass(type);
+        element.removeClass('hide')
+
+      },
+      Hide_alert: function(element) {
+        element.addClass('hide')
+
+      },
+      Render_Client_Row : function(value){
+        return '<tr id="'+value.ID+'"><td class="center-cell"><label class="customcheck"><input class="checkbox-action" value="'+value.ID+'" type="checkbox"><span class="checkmark"></span></label></td><td class="client_firstname">'+value.Firstname+'</td><td class="client_lastname">'+value.Lastname+'</td><td class="client_birthday">'+value.Birthday+'</td><td class="client_gender">'+value.Gender+'</td><td class="client_email">'+value.Email+'</td><td class="client_address">'+value.Address+'</td><td class="actions"><i userID="'+value.ID+'" class="edit_customer fa fa-pencil"></i><i userID='+value.ID+' class="delete_customer fa fa-lg fa-trash"></i></td></tr>';
+      }
+    }
+    $('.danger, .success').addClass('hide');
+
+  </script>

@@ -1,0 +1,108 @@
+{{ define "body" -}}
+    <div class="row center">
+      <div class="col-6 actions">
+        <i data-toggle="modal"
+          data-target="#add_client"
+          class="fa fa-lg fa-plus"></i>
+        <i class="fa fa-lg fa-trash main_delete"></i>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <h2>Page <span id="init_page">1</span> of <span id="last_page">1</span></h2>
+        </div>
+        <div class="col-6">
+          <div class="form-group has-search">
+            <span class="fa fa-search form-control-feedback"></span>
+            <input type="text"
+              id = "search_main"
+              class="form-control"
+              placeholder="Find a customer">
+            <button id="search_go" class="btn btn-primary">Search</button>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-12 table-holder">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="center-cell">
+                <label class="customcheck">
+                  <input id="main_check" type="checkbox">
+                  <span class="checkmark"></span>
+                </label>Select
+              </th>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>Birthday</th>
+              <th>Gender</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center-cell"><label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label></td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+            <tr>
+              <td class="center-cell"><label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label></td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+            <tr>
+              <td class="center-cell">
+                <label class="customcheck">
+                  <input class="checkbox-action"
+                    value="1"
+                    type="checkbox">
+                  <span class="checkmark"></span>
+                </label>
+              </td>
+              <td>John</td>
+              <td>Doe</td>
+              <td>01.01.2000</td>
+              <td>Male</td>
+              <td>john@example.com</td>
+              <td>Oismae tee 1</td>
+              <td class="actions"><i class="fa fa-pencil"></i><i class="fa fa-lg fa-trash"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-12">
+        <nav aria-label="...">
+          <ul class="pagination pagination-sm">
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+
+{{- end }}
