@@ -242,3 +242,11 @@ body {
   .hide{
     display:none;
   }
+  .form-label-small{
+    font-size:10px;
+    position: absolute;
+    top: -15px;
+  }
+.pagination{
+  flex-wrap: wrap;
+}

@@ -8,18 +8,49 @@
       </div>
     </div>
     <div class="row">
-        <div class="col-6">
+        <div class="col-3">
             <h2>Page <span id="init_page">1</span> of <span id="last_page">1</span></h2>
         </div>
-        <div class="col-6">
-          <div class="form-group has-search">
-            <span class="fa fa-search form-control-feedback"></span>
-            <input type="text"
-              id = "search_main"
-              class="form-control"
-              placeholder="Find a customer">
-            <button id="search_go" class="btn btn-primary">Search</button>
+        <div class="col-9">
+          <div class="row">
+
+            <div class="col-7">
+              <div class="row">
+                <div class="col-8">
+                  <label for="sort_name" class="form-label-small">Sorting by</label>
+                  <select id="sort_name" class="form-control">
+                      <option value="id">Added</option>
+                      <option value="first_name">Firstname</option>
+                      <option value="last_name">Lastname</option>
+                      <option value="birth_date">Birthday</option>
+                      <option value="gender">Gender</option>
+                      <option value="email">Email</option>
+                      <option value="address">Address</option>
+                  </select>
+                </div>
+                <div class="col-4">
+                  <label for="sort_order" class="form-label-small">Sorting order</label>
+                  <select id="sort_order" class="form-control">
+                      <option value="ASC">Ascending</option>
+                      <option value="DESC">Descending</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-5">
+              <div class="form-group has-search">
+                <span class="fa fa-search form-control-feedback"></span>
+                <input type="text"
+                  id = "search_main"
+                  class="form-control"
+                  placeholder="Find a customer">
+                <button id="search_go" class="btn btn-primary">Search</button>
+              </div>
+            </div>
+
           </div>
+
         </div>
     </div>
     <div class="row">

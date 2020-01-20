@@ -137,7 +137,7 @@ func (c *ValueController) AddClient(val *models.Client) {
 	})
 }
 
-func (c *ValueController) GetClients(id int, search string) {
+func (c *ValueController) GetClients(id int, search string, sorting string) {
 
 	search_query := " ";
 	//fmt.Println(order)
@@ -149,22 +149,33 @@ func (c *ValueController) GetClients(id int, search string) {
 		search_query = fmt.Sprintf(search_query, s)
 		fmt.Println(search_query)
 	}
+	if(sorting == ""){
+		sorting="id ASC"
+	}
+	fmt.Println(sorting)
 	db := dbConnect()
 	//var sqlStatement = `select * from clients FETCH FIRST 10 ROWS ONLY` //STANDART RETURN 10 ROWS
 	//var sqlStatement = fmt.Sprintf("select * FROM clients where id >= %v AND first_name LIKE '%Eri%' ORDER BY ID ASC FETCH FIRST 10 ROWS ONLY", id)
-	var sqlStatement = fmt.Sprintf(`select * from clients where id >= $1 %v ORDER BY id FETCH FIRST 10 ROWS ONLY`, search_query)
+	//var sqlStatement = fmt.Sprintf(`select * from clients where id >= $1 %v ORDER BY id FETCH FIRST 10 ROWS ONLY`, search_query)
+	var sqlStatement = fmt.Sprintf(`SELECT t.id, t.first_name, t.last_name, t.birth_date, t.gender, t.email, t.address FROM (SELECT *, row_number() OVER(ORDER BY %v) AS row FROM clients WHERE id>0 %v) t WHERE t.row BETWEEN ($1 - 1) * 10 + 1 AND $1 * 10`, sorting, search_query)
 
 	fmt.Println(sqlStatement)
 
-	var how_many_pages = fmt.Sprintf(`SELECT t.id FROM (SELECT *, row_number() OVER(ORDER BY id) AS row FROM clients WHERE id > 0 %v) t WHERE t.row %% 10 = 0`, search_query)
+	//var how_many_pages = fmt.Sprintf(`SELECT t.id FROM (SELECT *, row_number() OVER(ORDER BY id) AS row FROM clients WHERE id > 0 %v) t WHERE t.row %% 10 = 0`, search_query)
+	var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
+
 	fmt.Println(how_many_pages)
 	rows, err := db.Query(sqlStatement, id)
 	if err != nil {
+		fmt.Println("fetcher 1");
 		panic(err)
+
 	}
 	pages, err := db.Query(how_many_pages)
 	if err != nil {
+		fmt.Println("fetcher 2");
 		panic(err)
+
 	}
 	fmt.Println(pages)
 
