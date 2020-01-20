@@ -43,8 +43,7 @@ func (c *ValueController) EditClient(val *models.Client) {
 	sqlStatement := `
 	UPDATE clients
 	SET first_name = $2, last_name = $3, birth_date = $4, gender = $5, email = $6, address = $7
-	WHERE id = $1
-	commit`
+	WHERE id = $1`
 
 	_, err := db.Exec(sqlStatement, val.ID, val.Firstname, val.Lastname, val.Birthday, val.Gender, val.Email, val.Address)
 
