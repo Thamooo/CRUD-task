@@ -36,7 +36,6 @@ func init() {
 	app.OnStart(database.Connect)
 
 	//app.OnPostShutdown(database.CloseTransaction)
-	app.OnPostShutdown(database.CloseTransaction)
 	app.OnPostShutdown(database.Disconnect)
 
 

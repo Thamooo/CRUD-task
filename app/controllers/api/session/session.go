@@ -29,15 +29,15 @@ func (c *SessionController) ReserveSession() {
     // }
 }
 
-// func (c *SessionController) RollbackSession() {
-//
-//     database.CloseTransaction
-//
-//     // err :=
-//     // if(err != nil){
-//     //   c.Reply().JSON(aah.Data{
-//   	// 		"success": "false",
-//   	// 		"error":  "Someone is already editing",
-//   	// 	})
-//     // }
-// }
+func (c *SessionController) RollbackSession() {
+
+    database.CloseTransaction()
+
+    // err :=
+    // if(err != nil){
+    //   c.Reply().JSON(aah.Data{
+  	// 		"success": "false",
+  	// 		"error":  "Someone is already editing",
+  	// 	})
+    // }
+}

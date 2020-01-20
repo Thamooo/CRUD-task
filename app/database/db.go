@@ -36,6 +36,7 @@ func Connect(_ *aah.Event) {
 
 func Disconnect(_ *aah.Event) {
 
+
 	if err := Instance.Close(); err != nil {
 		panic(errors.Annotate(err, "closing connection to database failed"))
     if(err!=nil){
@@ -44,7 +45,7 @@ func Disconnect(_ *aah.Event) {
 	}
 }
 
-func CloseTransaction(_ *aah.Event){
+func CloseTransaction(){
 
   if rollbackErr := TXconnection.Rollback(); rollbackErr != nil {
 		log.Print(rollbackErr)
