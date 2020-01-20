@@ -7,22 +7,20 @@ package main
 import (
 	"aahframe.work"
 	// Registering HTML minifier
+		"test-task/app/database"
 	_ "aahframe.work/minify/html"
     "time"
-    //"github.com/davecgh/go-spew/spew"
     "gopkg.in/go-playground/validator.v9"
-    "database/sql"
-		//"github.com/davecgh/go-spew/spew"
     "fmt"
 		"strings"
-		//"reflect"
+
 )
 
 var app = aah.App()
 var validate = aah.App().Validator()
 
-func init() {
 
+func init() {
 
 
     validate.RegisterValidation("emailRegistered", checkMailRegistered)
@@ -32,7 +30,15 @@ func init() {
 	// Server Extensions
 	// Doc: https://docs.aahframework.org/server-extension.html
 	//__________________________________________________________________________
+
 	app.OnStart(SubscribeHTTPEvents)
+
+	app.OnStart(database.Connect)
+
+	//app.OnPostShutdown(database.CloseTransaction)
+	app.OnPostShutdown(database.CloseTransaction)
+	app.OnPostShutdown(database.Disconnect)
+
 
 	//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 	// Middleware's
@@ -86,15 +92,19 @@ func init() {
 
 }
 
+// func dbConnect() *sql.DB {
+// 	var db *sql.DB
+// 	var err error
+// 	db, err = sql.Open("postgres", "user=postgres dbname=test sslmode=disable")
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	return db
+// }
+
 func checkMailRegistered(fl validator.FieldLevel) bool{
 
-    var db *sql.DB
-
-    var err error
-	db, err = sql.Open("postgres", "user=postgres dbname=test sslmode=disable")
-	if err != nil {
-		return false
-	}
+    var db = database.Instance
 
     var email string
     emailUser := fl.Field().String()
@@ -104,12 +114,14 @@ func checkMailRegistered(fl validator.FieldLevel) bool{
     fmt.Println(emailUser)
 
     switch err := row.Scan(&email); err {
-    case sql.ErrNoRows:
-        return true
+    //case sql.ErrNoRows:
+		//	panic(err)
+      //  return true
     case nil:
+			panic(err)
         return false
     default:
-        //panic(err)
+        panic(err)
         return false
     }
 

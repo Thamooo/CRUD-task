@@ -11,7 +11,6 @@
     integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
     crossorigin="anonymous"></script>
   <script src="/static/js/jquery-dateformat.min.js"></script>
-  <script src="/static/js/jquery.simplemodal.min"></script>
   <!-- CUSTOM SCRIPTS -->
   <script>
     var id_torender = {'id' : 1};
@@ -47,6 +46,47 @@
 
             })
           },
+      Edit_Client : function(query_data){
+        $.ajax({
+          url: '/clients/edit',
+          type: 'POST',
+          //data: 'value='+JSON.stringify(values),
+          data : $.param(query_data),
+          success: function(result) {
+
+            switch (result.success) {
+              case "false":
+
+                tools.Hide_alert($('.danger'))
+                tools.Hide_alert($('.success'))
+                if(result.errors != null){
+                $.each(result.errors, function(key, value) {
+                  console.log(value);
+                  //console.log( + " .error")
+                  var errorHolder = edit_client_fields[key].find('.danger');
+                  errorHolder.html(value)
+                  tools.Show_alert(errorHolder, 'danger')
+                  tools.Hide_alert($('.success'))
+
+                });
+              }else{
+                $('#edit_client .success').html('Internal server error')
+                tools.Show_alert($('#edit_client .success'), 'danger')
+              }
+              break;
+              case "true":
+
+                  $('#edit_client .success').html('Client successfuly edited')
+                  tools.Show_alert($('#edit_client .success'), 'success')
+                  tools.Hide_alert($('.danger'))
+
+              break;
+            }
+            console.log(result)
+          }
+
+          })
+      },
       Delete_Customers : function(query_data){
         $.ajax({
           url: '/clients/del',
@@ -58,8 +98,19 @@
           }
 
         })
+      },
+      ReserveCustomerEdit : function(){
+        $.ajax({
+          url: '/clients/reserve',
+          success: function(result) {
+             console.log(result)
+
+          }
+
+        })
       }
     }
+
 
 
   $(document).on('click', '.page-link', function(){
@@ -108,6 +159,7 @@
   })
 
 
+
   $('.main_delete').click(function(){
 
       var deletable = []
@@ -127,10 +179,6 @@
 
   })
 
-    $('.send').click(function(){
-      console.log(id_torender.id)
-      ajaxOperations.Get_clients_default(id_torender);
-    })
 
     ajaxOperations.Get_clients_default(id_torender);
 
@@ -217,46 +265,8 @@
       })
 
       console.log(values);
-      console.log(JSON.stringify(values));
-      $.ajax({
-        url: '/clients/edit',
-        type: 'POST',
-        //data: 'value='+JSON.stringify(values),
-        data : $.param(values),
-        success: function(result) {
-
-          switch (result.success) {
-            case "false":
-
-              tools.Hide_alert($('.danger'))
-              tools.Hide_alert($('.success'))
-              if(result.errors != null){
-              $.each(result.errors, function(key, value) {
-                console.log(value);
-                //console.log( + " .error")
-                var errorHolder = edit_client_fields[key].find('.danger');
-                errorHolder.html(value)
-                tools.Show_alert(errorHolder, 'danger')
-                tools.Hide_alert($('.success'))
-
-              });
-            }else{
-              $('#edit_client .success').html('Internal server error')
-              tools.Show_alert($('#edit_client .success'), 'danger')
-            }
-            break;
-            case "true":
-
-                $('#edit_client .success').html('Client successfuly edited')
-                tools.Show_alert($('#edit_client .success'), 'success')
-                tools.Hide_alert($('.danger'))
-
-            break;
-          }
-          console.log(result)
-        }
-
-        })
+      //console.log(JSON.stringify(values));
+      ajaxOperations.Edit_Client(values)
       } else {
           // Do nothing!
       }
@@ -341,4 +351,18 @@
     }
     $('.danger, .success').addClass('hide');
 
+    $('#edit_client').on('hide.bs.modal', function (e) {
+
+
+
+    })
+
+    $('.send').click(function(){
+      console.log(id_torender.id)
+      ajaxOperations.Get_clients_default(id_torender);
+    });
+
+    $(document).on('click', '.edit_customer', function(){
+        ajaxOperations.ReserveCustomerEdit();
+    })
   </script>

@@ -2,13 +2,15 @@ package v1
 
 import (
 	"aahframe.work"
-	"database/sql"
+
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/lib/pq"
 	"test-task/app/models"
+	"test-task/app/database"
 	"regexp"
+	//"log"
 	//"gopkg.in/go-playground/validator.v9"
 )
 
@@ -19,15 +21,10 @@ type ValueController struct {
 
 var response string
 
+
 func (c *ValueController) EditClient(val *models.Client) {
 
-	// client := models.Client{}
-	// bytes := []byte(value)
-	// json.Unmarshal(bytes, client)
-	// //fmt.Println(client.Firstname)
-	// fmt.Println(client)
-
-	db := dbConnect()
+	var db = database.Instance
 
 	errors := ValidateUser(val, "edit")
 	spew.Dump(errors)
@@ -64,16 +61,16 @@ func (c *ValueController) EditClient(val *models.Client) {
 	// 		"errors":  "{'main' : 'Database connection error'}",
 	// 	})
 	// }
-
 	c.Reply().JSON(aah.Data{
 		"success": "true",
 		"errors":  errors,
 	})
+
 }
 
 func (c *ValueController) DeleteClient(val *models.ToDeleteIDs) {
 
-	db := dbConnect()
+	var db = database.Instance
 
 	for _, element := range val.IDs {
 		_, err := db.Exec("DELETE FROM clients WHERE ID= $1",
@@ -100,7 +97,7 @@ func (c *ValueController) AddClient(val *models.Client) {
 	// //fmt.Println(client.Firstname)
 	// fmt.Println(client)
 
-	db := dbConnect()
+	var db = database.Instance
 
 	errors := ValidateUser(val, "add")
 	spew.Dump(errors)
@@ -138,6 +135,7 @@ func (c *ValueController) AddClient(val *models.Client) {
 }
 
 func (c *ValueController) GetClients(id int, search string, sorting string) {
+	var db = database.Instance
 
 	search_query := " ";
 	//fmt.Println(order)
@@ -153,7 +151,6 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 		sorting="id ASC"
 	}
 	fmt.Println(sorting)
-	db := dbConnect()
 	//var sqlStatement = `select * from clients FETCH FIRST 10 ROWS ONLY` //STANDART RETURN 10 ROWS
 	//var sqlStatement = fmt.Sprintf("select * FROM clients where id >= %v AND first_name LIKE '%Eri%' ORDER BY ID ASC FETCH FIRST 10 ROWS ONLY", id)
 	//var sqlStatement = fmt.Sprintf(`select * from clients where id >= $1 %v ORDER BY id FETCH FIRST 10 ROWS ONLY`, search_query)
@@ -260,15 +257,7 @@ func ValidateUser(val *models.Client, validation_type string) map[string]string 
 
 	return errors
 }
-func dbConnect() *sql.DB {
-	var db *sql.DB
-	var err error
-	db, err = sql.Open("postgres", "user=postgres dbname=test sslmode=disable")
-	if err != nil {
-		fmt.Println(err)
-	}
-	return db
-}
+
 
 // List method returns all the values.
 //func (c *ValueController) List() {
