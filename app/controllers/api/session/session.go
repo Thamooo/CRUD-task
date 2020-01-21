@@ -2,36 +2,76 @@ package session
 
 import(
   "aahframe.work"
+  "test-task/app/models"
   "test-task/app/database"
-  // "log"
+  "log"
+  "encoding/json"
+  "fmt"
 )
 
 type SessionController struct {
 	*aah.Context
 }
 
-var session bool;
+func (c *SessionController) ReserveSession(id *models.ReservedID) {
+  log.Print(id.ID)
+    for k := range (database.ActiveIDS){
+      log.Print(k)
+      if(k == id.ID){
+        c.Reply().JSON(aah.Data{
+          "success": false,
+          "errors": "Already editing" ,
+        })
+        return
+      }
 
-func (c *SessionController) ReserveSession() {
+    }
 
+    tx := database.ConnectTransaction(id.ID)
 
-     database.ConnectTransaction();
-    // if(err != nil){
-    //   log.Print(err)
-    // }
-    // log.Print("Hey")
-    // err :=
-    // if(err != nil){
-    //   c.Reply().JSON(aah.Data{
-  	// 		"success": "false",
-  	// 		"error":  "Someone is already editing",
-  	// 	})
-    // }
+    rows, err := tx.Query(`SELECT * FROM clients WHERE id=$1`, id.ID)
+    if(err != nil){
+      panic(err)
+    }
+    defer rows.Close()
+
+    var client models.Client
+    for rows.Next() {
+  		single_client := models.Client{}
+  		//spew.Dump(single_client.Birthday.String())
+  		err := rows.Scan(&single_client.ID, &single_client.Firstname, &single_client.Lastname, &single_client.Birthday, &single_client.Gender, &single_client.Email, &single_client.Address)
+  		if err != nil {
+  			return
+  		}
+  		client = single_client
+  	}
+
+      json_client, err := json.Marshal(client)
+      if err != nil {
+      }
+
+      response := fmt.Sprintf(`{"success" : true, "data" : %v}`, string(json_client))
+
+    	//fmt.Sprintf(jsonData);
+    	c.Reply().Ok().JSON(response)
+
 }
 
-func (c *SessionController) RollbackSession() {
+func (c *SessionController) RollbackSession(id *models.ReservedID) {
 
-    database.CloseTransaction()
+  // for k := range (database.ActiveIDS){
+  //   log.Print(k)
+  //   if(k == id.ID){
+  //     c.Reply().JSON(aah.Data{
+  //       "success": "false",
+  //       "errors": "Connection Not Exists" ,
+  //     })
+  //     return
+  //   }
+  //
+  // }
+
+    database.CloseTransaction(id.ID)
 
     // err :=
     // if(err != nil){

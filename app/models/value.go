@@ -14,12 +14,13 @@ type Value struct {
 // 	Value []byte `json:"value" validate:"required"`
 // }
 
+
 type Pagination struct {
 	ID int
 }
 
-type POSTdata struct {
-	Value string `json:"value"`
+type ReservedID struct {
+	ID int `bind:"ID"`
 }
 
 type ToDeleteIDs struct{

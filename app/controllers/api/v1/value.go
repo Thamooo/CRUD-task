@@ -10,7 +10,7 @@ import (
 	"test-task/app/models"
 	"test-task/app/database"
 	"regexp"
-	//"log"
+	"log"
 	//"gopkg.in/go-playground/validator.v9"
 )
 
@@ -19,19 +19,21 @@ type ValueController struct {
 	*aah.Context
 }
 
-var response string
 
 
 func (c *ValueController) EditClient(val *models.Client) {
 
-	var db = database.Instance
+	//var db = database.Instance
+
+
+
 
 	errors := ValidateUser(val, "edit")
 	spew.Dump(errors)
 
 	if len(errors) != 0 {
 		c.Reply().JSON(aah.Data{
-			"success": "false",
+			"success": false,
 			"errors":  errors,
 		})
 		return
@@ -39,22 +41,31 @@ func (c *ValueController) EditClient(val *models.Client) {
 
 	//c.Reply().Ok().JSON(response)
 	//aah.App().Validate(val)
-	fmt.Println(val.Birthday)
-	sqlStatement := `
-	UPDATE clients
-	SET first_name = $2, last_name = $3, birth_date = $4, gender = $5, email = $6, address = $7
-	WHERE id = $1`
+	// fmt.Println(val.Birthday)
+	// sqlStatement := `
+	// UPDATE clients
+	// SET first_name = $2, last_name = $3, birth_date = $4, gender = $5, email = $6, address = $7
+	// WHERE id = $1`
+	//database.ConnectTransaction();
 
-	_, err := db.Exec(sqlStatement, val.ID, val.Firstname, val.Lastname, val.Birthday, val.Gender, val.Email, val.Address)
+	tx := database.ActiveIDS[val.ID]
 
-	//
-	//rowsAffected, err := result.RowsAffected()
+	res, err := tx.Exec(`UPDATE clients SET first_name = $1, last_name = $2, birth_date = $3, gender = $4, email = $5, address = $6 WHERE id = $7`, val.Firstname, val.Lastname, val.Birthday, val.Gender, val.Email, val.Address, val.ID)
+
+
+
+	log.Print(res, err)
+	rowsAffected, err := res.RowsAffected()
 	if(err != nil){
-		c.Reply().JSON(aah.Data{
-			"success": "false",
-			"errors":  "{'main' : 'Database connection error'}",
-		})
+		panic(err)
 	}
+	if(rowsAffected != 1){
+		log.Print(rowsAffected)
+	}
+
+	database.CommitTransaction(val.ID, tx)
+
+
 	// if(rowsAffected != 0){
 	// 	c.Reply().JSON(aah.Data{
 	// 		"success": "false",
@@ -62,7 +73,7 @@ func (c *ValueController) EditClient(val *models.Client) {
 	// 	})
 	// }
 	c.Reply().JSON(aah.Data{
-		"success": "true",
+		"success": true,
 		"errors":  errors,
 	})
 
@@ -77,7 +88,7 @@ func (c *ValueController) DeleteClient(val *models.ToDeleteIDs) {
 			element)
 		if(err != nil){
 			c.Reply().JSON(aah.Data{
-				"success": "false",
+				"success": false,
 			})
 		}
 	}
@@ -85,7 +96,7 @@ func (c *ValueController) DeleteClient(val *models.ToDeleteIDs) {
 
 
 	c.Reply().JSON(aah.Data{
-		"success": "true",
+		"success": true,
 	})
 }
 
@@ -104,7 +115,7 @@ func (c *ValueController) AddClient(val *models.Client) {
 
 	if len(errors) != 0 {
 		c.Reply().JSON(aah.Data{
-			"success": "false",
+			"success": false,
 			"errors":  errors,
 		})
 		return
@@ -123,13 +134,13 @@ func (c *ValueController) AddClient(val *models.Client) {
 	}
 	if(rowsAffected != 0){
 		c.Reply().JSON(aah.Data{
-			"success": "false",
+			"success": false,
 			"errors":  "{'main' : 'Database connection error'}",
 		})
 	}
 
 	c.Reply().JSON(aah.Data{
-		"success": "true",
+		"success": true,
 		"errors":  errors,
 	})
 }
@@ -145,38 +156,33 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 
 		search_query = `AND first_name || ' ' || last_name LIKE '%%%v%%'`
 		search_query = fmt.Sprintf(search_query, s)
-		fmt.Println(search_query)
 	}
 	if(sorting == ""){
 		sorting="id ASC"
 	}
-	fmt.Println(sorting)
 	//var sqlStatement = `select * from clients FETCH FIRST 10 ROWS ONLY` //STANDART RETURN 10 ROWS
 	//var sqlStatement = fmt.Sprintf("select * FROM clients where id >= %v AND first_name LIKE '%Eri%' ORDER BY ID ASC FETCH FIRST 10 ROWS ONLY", id)
 	//var sqlStatement = fmt.Sprintf(`select * from clients where id >= $1 %v ORDER BY id FETCH FIRST 10 ROWS ONLY`, search_query)
 	var sqlStatement = fmt.Sprintf(`SELECT t.id, t.first_name, t.last_name, t.birth_date, t.gender, t.email, t.address FROM (SELECT *, row_number() OVER(ORDER BY %v) AS row FROM clients WHERE id>0 %v) t WHERE t.row BETWEEN ($1 - 1) * 10 + 1 AND $1 * 10`, sorting, search_query)
 
-	fmt.Println(sqlStatement)
 
 	//var how_many_pages = fmt.Sprintf(`SELECT t.id FROM (SELECT *, row_number() OVER(ORDER BY id) AS row FROM clients WHERE id > 0 %v) t WHERE t.row %% 10 = 0`, search_query)
 	var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
 
-	fmt.Println(how_many_pages)
 	rows, err := db.Query(sqlStatement, id)
 	if err != nil {
-		fmt.Println("fetcher 1");
 		panic(err)
 
 	}
 	pages, err := db.Query(how_many_pages)
 	if err != nil {
-		fmt.Println("fetcher 2");
+
 		panic(err)
 
 	}
-	fmt.Println(pages)
 
 	defer pages.Close()
+	defer rows.Close()
 
 	ids := []models.Pagination{}
 
@@ -184,13 +190,12 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 		id_one := models.Pagination{}
 		err := pages.Scan(&id_one.ID)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		ids = append(ids, id_one)
 	}
 
-	defer rows.Close()
+
 
 	clients := []models.Client{}
 	for rows.Next() {
@@ -198,7 +203,6 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 		//spew.Dump(single_client.Birthday.String())
 		err := rows.Scan(&single_client.ID, &single_client.Firstname, &single_client.Lastname, &single_client.Birthday, &single_client.Gender, &single_client.Email, &single_client.Address)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		clients = append(clients, single_client)
@@ -210,7 +214,7 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 	json_pages, err := json.Marshal(ids)
 	if err != nil {
 	}
-	response = fmt.Sprintf(`{"pages" : %v, "data" : %v}`, string(json_pages), string(json_clients))
+	response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, string(json_pages), string(json_clients))
 
 	//fmt.Sprintf(jsonData);
 	c.Reply().Ok().JSON(response)

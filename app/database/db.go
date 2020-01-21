@@ -5,25 +5,17 @@ import (
 	aah "aahframe.work"
 	_ "github.com/lib/pq"
   "github.com/juju/errors"
-  "log"
+  // "log"
   "context"
+  // "fmt"
 )
 
 
 var Instance *sql.DB
 var ctx context.Context
 var TXconnection *sql.Tx
-
-func ConnectTransaction() (){
-  //log.Print("test")
-  tx, err := Instance.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
-  if(err != nil){
-    //return errors.Annotate(err, "someone is already editing database")
-    log.Fatal(err)
-  }
-  TXconnection = tx
-  //return nil
-}
+var Stmt *sql.Stmt
+var ActiveIDS = make(map[int]*sql.Tx)
 
 func Connect(_ *aah.Event) {
 
@@ -45,14 +37,43 @@ func Disconnect(_ *aah.Event) {
 	}
 }
 
-func CloseTransaction(){
+func CloseTransaction(id int){
 
-  if rollbackErr := TXconnection.Rollback(); rollbackErr != nil {
-		log.Print(rollbackErr)
-	}
-
+  err := ActiveIDS[id].Rollback()
+  if(err != nil){
+    panic(err)
+  }
+  delete(ActiveIDS, id);
 }
 
+func CommitTransaction(id int, tx *sql.Tx) (){
+    err := tx.Commit()
+  	if(err != nil){
+  		panic(err)
+  	}
+    delete(ActiveIDS, id);
+}
+
+func ConnectTransaction(id int) (*sql.Tx){
+
+  tx, _ := Instance.Begin()
+
+  //statement := fmt.Sprintf(`UPDATE clients SET first_name = $1, last_name = $2, birth_date = $3, gender = $4, email = $5, address = $6 WHERE id = %v`, id)
+  // stmt, err := TXconnection.Prepare(statement)
+  // if(err != nil){
+  //   panic(err)
+  // }
+  ActiveIDS[id]=tx
+
+  return tx
+ // if(err != nil){
+ //   panic(err)
+ // }
+ // log.Print(stmt)
+ //  Stmt = stmt
+
+  //return nil
+}
 
 func connect() (*sql.DB, error) {
   var db *sql.DB

@@ -15,6 +15,28 @@
   <script>
     var id_torender = {'id' : 1};
 
+    var add_client_fields = {
+      ID : 0,
+      Firstname: $('#add_client_firstname'),
+      Lastname: $('#add_client_lastname'),
+      Birthday: $('#add_client_birthday'),
+      Gender: $('#add_client_gender'),
+      Email: $('#add_client_email'),
+      Address: $('#add_client_address')
+
+    }
+
+    var edit_client_fields = {
+      ID : $('#editable_id'),
+      Firstname: $('#edit_client_firstname'),
+      Lastname: $('#edit_client_lastname'),
+      Birthday: $('#edit_client_birthday'),
+      Gender: $('#edit_client_gender'),
+      Email: $('#edit_client_email'),
+      Address: $('#edit_client_address')
+
+    }
+
     var  ajaxOperations = {
       Get_clients_default : function(query_data){
             $.ajax({
@@ -55,7 +77,7 @@
           success: function(result) {
 
             switch (result.success) {
-              case "false":
+              case false:
 
                 tools.Hide_alert($('.danger'))
                 tools.Hide_alert($('.success'))
@@ -74,12 +96,14 @@
                 tools.Show_alert($('#edit_client .success'), 'danger')
               }
               break;
-              case "true":
+              case true:
 
                   $('#edit_client .success').html('Client successfuly edited')
                   tools.Show_alert($('#edit_client .success'), 'success')
                   tools.Hide_alert($('.danger'))
-
+                  ajaxOperations.Get_clients_default(id_torender);
+                  tools.Hide_alert($('#edit_client .success'))
+                  $('#edit_client').modal('hide');
               break;
             }
             console.log(result)
@@ -99,14 +123,55 @@
 
         })
       },
-      ReserveCustomerEdit : function(){
+      Rollback_Custmoer_Edit : function(id){
         $.ajax({
-          url: '/clients/reserve',
+          url: '/clients/rollback',
+          type: 'POST',
+          data: $.param(id),
           success: function(result) {
-             console.log(result)
+              console.log(result)
+
 
           }
 
+        })
+      },
+      Reserve_Customer_Edit : function(id){
+        $.ajax({
+          url: '/clients/reserve',
+          type: 'POST',
+          data: $.param(id),
+          success: function(result) {
+
+              result = JSON.parse(result);
+              console.log(result)
+              switch (result.success) {
+              case false:
+              break;
+              case true:
+              $('#edit_client').modal('toggle');
+              $.each(edit_client_fields, function(key, value){
+                  if(key=="Gender"){
+                    value.find('input[value="'+result.data[key].toUpperCase()+'"]').click();
+                    //console.log(value.find('input[value="'+(editable_user[key].toUpperCase())+'"]')
+                  }else if(key=='Birthday'){
+
+                    //console.log(result.data[key])
+                    //value.val(result.data[key])
+                    value.find('input').val($.format.date(result.data[key], "dd-MM-yyyy"));
+
+                  }else if(key!='ID'){
+
+                    value.find('input').val(result.data[key]);
+
+                  }else{
+                    value.val(result.data[key])
+                  }
+              });
+            break;
+             console.log(result)
+           }
+          }
         })
       }
     }
@@ -132,7 +197,7 @@
       }
 
   })
-  $('#search_go').on('click',function(){
+  $('#sort_name, #sort_order, #search_main').on('change keypress keyup',function(){
       var str = $('#search_main').val()
       str = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
         return letter.toUpperCase();
@@ -182,27 +247,7 @@
 
     ajaxOperations.Get_clients_default(id_torender);
 
-    var add_client_fields = {
-      ID : 0,
-      Firstname: $('#add_client_firstname'),
-      Lastname: $('#add_client_lastname'),
-      Birthday: $('#add_client_birthday'),
-      Gender: $('#add_client_gender'),
-      Email: $('#add_client_email'),
-      Address: $('#add_client_address')
 
-    }
-
-    var edit_client_fields = {
-      ID : $('#editable_id'),
-      Firstname: $('#edit_client_firstname'),
-      Lastname: $('#edit_client_lastname'),
-      Birthday: $('#edit_client_birthday'),
-      Gender: $('#edit_client_gender'),
-      Email: $('#edit_client_email'),
-      Address: $('#edit_client_address')
-
-    }
 
     $(".calender input").datepicker({
       dateFormat: 'dd-mm-yy'
@@ -210,39 +255,39 @@
 
 
 
-    $(document).on('click', '.edit_customer', function(){
-
-      let $this = $(this);
-      let user_id = $(this).attr('userid');
-      $('#edit_client').modal('toggle');
-
-      let editable_user = {}
-
-      $.each(edit_client_fields, function(key, value){
-          let currentClass='.client_'+key.toLowerCase();
-          if(key != 'ID'){
-            editable_user[key]=$($this).parent().parent().find(currentClass).html()
-          }else{
-            editable_user[key]=user_id;
-          }
-
-      })
-
-      console.log(editable_user);
-
-      $.each(edit_client_fields, function(key, value){
-          if(key=="Gender"){
-            value.find('input[value="'+(editable_user[key].toUpperCase())+'"]').click();
-            //console.log(value.find('input[value="'+(editable_user[key].toUpperCase())+'"]')
-          }else if(key!='ID'){
-
-            value.find('input').val(editable_user[key]);
-          }else{
-            value.val(editable_user[key])
-          }
-      })
-
-    });
+    // $(document).on('click', '.edit_customer', function(){
+    //
+    //   let $this = $(this);
+    //   let user_id = $(this).attr('userid');
+    //   $('#edit_client').modal('toggle');
+    //
+    //   let editable_user = {}
+    //
+    //   $.each(edit_client_fields, function(key, value){
+    //       let currentClass='.client_'+key.toLowerCase();
+    //       if(key != 'ID'){
+    //         editable_user[key]=$($this).parent().parent().find(currentClass).html()
+    //       }else{
+    //         editable_user[key]=user_id;
+    //       }
+    //
+    //   })
+    //
+    //   console.log(editable_user);
+    //
+    //   $.each(edit_client_fields, function(key, value){
+    //       if(key=="Gender"){
+    //         value.find('input[value="'+(editable_user[key].toUpperCase())+'"]').click();
+    //         //console.log(value.find('input[value="'+(editable_user[key].toUpperCase())+'"]')
+    //       }else if(key!='ID'){
+    //
+    //         value.find('input').val(editable_user[key]);
+    //       }else{
+    //         value.val(editable_user[key])
+    //       }
+    //   })
+    //
+    // });
 
     $('#edit_client .send').click(function() {
 
@@ -300,7 +345,7 @@
         success: function(result) {
 
           switch (result.success) {
-            case "false":
+            case false:
 
               tools.Hide_alert($('.danger'))
               tools.Hide_alert($('.success'))
@@ -319,12 +364,12 @@
               tools.Show_alert($('#add_client .success'), 'danger')
             }
             break;
-            case "true":
+            case true:
 
                 $('#add_client .success').html('Client successfuly added')
                 tools.Show_alert($('#add_client .success'), 'success')
                 tools.Hide_alert($('.danger'))
-
+                ajaxOperations.Get_clients_default(id_torender);
             break;
           }
           console.log(result)
@@ -353,7 +398,9 @@
 
     $('#edit_client').on('hide.bs.modal', function (e) {
 
-
+      id_to_Free = {}
+      id_to_Free['ID'] = $(this).find('#editable_id').val();
+      ajaxOperations.Rollback_Custmoer_Edit(id_to_Free);
 
     })
 
@@ -363,6 +410,9 @@
     });
 
     $(document).on('click', '.edit_customer', function(){
-        ajaxOperations.ReserveCustomerEdit();
+        id_to_Reserve = {}
+        id_to_Reserve['ID'] = $(this).attr('userid')
+        console.log($.param(id_to_Reserve))
+        ajaxOperations.Reserve_Customer_Edit(id_to_Reserve);
     })
   </script>
