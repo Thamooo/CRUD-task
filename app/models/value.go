@@ -1,7 +1,6 @@
 package models
 import(
 	"time"
-	//"fmt"
 )
 //type BirthDate time.Time
 // Value model is used by ValueController

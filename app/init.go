@@ -13,6 +13,7 @@ import (
     "gopkg.in/go-playground/validator.v9"
     "fmt"
 		"strings"
+		"database/sql"
 
 )
 
@@ -107,20 +108,19 @@ func checkMailRegistered(fl validator.FieldLevel) bool{
 
     var email string
     emailUser := fl.Field().String()
+
     sqlStatement := "SELECT email FROM clients WHERE email=$1;"
     row := db.QueryRow(sqlStatement, emailUser)
 
     fmt.Println(emailUser)
 
     switch err := row.Scan(&email); err {
-    //case sql.ErrNoRows:
-		//	panic(err)
-      //  return true
+    case sql.ErrNoRows:
+			//panic(err)
+       return true
     case nil:
-			panic(err)
         return false
     default:
-        panic(err)
         return false
     }
 

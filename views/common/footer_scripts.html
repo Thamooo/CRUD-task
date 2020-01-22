@@ -118,7 +118,7 @@
           data : $.param(query_data),
           success: function(result) {
              console.log(result)
-
+             ajaxOperations.Get_clients_default(id_torender);
           }
 
         })
@@ -191,7 +191,7 @@
       deletable_query = { 'IDs' : [$(this).attr('userid')]};
       if (confirm('Are you sure that you want to delete?')) {
       ajaxOperations.Delete_Customers(deletable_query)
-      ajaxOperations.Get_clients_default(id_torender);
+
       } else {
           // Do nothing!
       }

@@ -167,8 +167,8 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 
 
 	//var how_many_pages = fmt.Sprintf(`SELECT t.id FROM (SELECT *, row_number() OVER(ORDER BY id) AS row FROM clients WHERE id > 0 %v) t WHERE t.row %% 10 = 0`, search_query)
+	//var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
 	var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
-
 	rows, err := db.Query(sqlStatement, id)
 	if err != nil {
 		panic(err)
