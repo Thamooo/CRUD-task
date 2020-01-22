@@ -38,7 +38,7 @@ func (c *SessionController) ReserveSession(id *models.ReservedID) {
     var client models.Client
     for rows.Next() {
   		single_client := models.Client{}
-  		//spew.Dump(single_client.Birthday.String())
+
   		err := rows.Scan(&single_client.ID, &single_client.Firstname, &single_client.Lastname, &single_client.Birthday, &single_client.Gender, &single_client.Email, &single_client.Address)
   		if err != nil {
   			return
@@ -52,32 +52,12 @@ func (c *SessionController) ReserveSession(id *models.ReservedID) {
 
       response := fmt.Sprintf(`{"success" : true, "data" : %v}`, string(json_client))
 
-    	//fmt.Sprintf(jsonData);
     	c.Reply().Ok().JSON(response)
 
 }
 
 func (c *SessionController) RollbackSession(id *models.ReservedID) {
 
-  // for k := range (database.ActiveIDS){
-  //   log.Print(k)
-  //   if(k == id.ID){
-  //     c.Reply().JSON(aah.Data{
-  //       "success": "false",
-  //       "errors": "Connection Not Exists" ,
-  //     })
-  //     return
-  //   }
-  //
-  // }
-
     database.CloseTransaction(id.ID)
 
-    // err :=
-    // if(err != nil){
-    //   c.Reply().JSON(aah.Data{
-  	// 		"success": "false",
-  	// 		"error":  "Someone is already editing",
-  	// 	})
-    // }
 }

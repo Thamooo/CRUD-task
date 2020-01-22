@@ -47,14 +47,18 @@
                  result = JSON.parse(result);
                  console.log(result)
                  $('.pagination').html(null)
-                 $('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+1+'</a></li>')
+                 //$('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+1+'</a></li>')
 
-                 if(result.pages.length > 1){
-                 $.each(result.pages, function(key, value){
-                  key = key+2
-                  $('.pagination').append('<li class="page-item"><a first_ID="'+key+'" class="page-link" href="#">'+key+'</a></li>')
+                //  if(result.pages.length > 1){
+                //  $.each(result.pages, function(key, value){
+                //   key = key+2
+                //   $('.pagination').append('<li class="page-item"><a first_ID="'+key+'" class="page-link" href="#">'+key+'</a></li>')
 
-                 })
+                //  })
+                //  }
+
+                 for(i=0; i<=result.pages; i++){
+                  $('.pagination').append('<li class="page-item"><a first_ID="'+i+'" class="page-link" href="#">'+i+'</a></li>')
                  }
 
                  $('#last_page').html($('.page-item:last-child a').html());

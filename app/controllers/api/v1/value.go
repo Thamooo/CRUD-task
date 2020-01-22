@@ -1,8 +1,8 @@
 package v1
 
 import (
+	"database/sql"
 	"aahframe.work"
-
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
@@ -11,10 +11,8 @@ import (
 	"test-task/app/database"
 	"regexp"
 	"log"
-	//"gopkg.in/go-playground/validator.v9"
 )
 
-// ValueController is kickstart sample for API implementation.
 type ValueController struct {
 	*aah.Context
 }
@@ -22,11 +20,6 @@ type ValueController struct {
 
 
 func (c *ValueController) EditClient(val *models.Client) {
-
-	//var db = database.Instance
-
-
-
 
 	errors := ValidateUser(val, "edit")
 	spew.Dump(errors)
@@ -38,15 +31,6 @@ func (c *ValueController) EditClient(val *models.Client) {
 		})
 		return
 	}
-
-	//c.Reply().Ok().JSON(response)
-	//aah.App().Validate(val)
-	// fmt.Println(val.Birthday)
-	// sqlStatement := `
-	// UPDATE clients
-	// SET first_name = $2, last_name = $3, birth_date = $4, gender = $5, email = $6, address = $7
-	// WHERE id = $1`
-	//database.ConnectTransaction();
 
 	tx := database.ActiveIDS[val.ID]
 
@@ -65,13 +49,6 @@ func (c *ValueController) EditClient(val *models.Client) {
 
 	database.CommitTransaction(val.ID, tx)
 
-
-	// if(rowsAffected != 0){
-	// 	c.Reply().JSON(aah.Data{
-	// 		"success": "false",
-	// 		"errors":  "{'main' : 'Database connection error'}",
-	// 	})
-	// }
 	c.Reply().JSON(aah.Data{
 		"success": true,
 		"errors":  errors,
@@ -102,12 +79,6 @@ func (c *ValueController) DeleteClient(val *models.ToDeleteIDs) {
 
 func (c *ValueController) AddClient(val *models.Client) {
 
-	// client := models.Client{}
-	// bytes := []byte(value)
-	// json.Unmarshal(bytes, client)
-	// //fmt.Println(client.Firstname)
-	// fmt.Println(client)
-
 	var db = database.Instance
 
 	errors := ValidateUser(val, "add")
@@ -120,9 +91,6 @@ func (c *ValueController) AddClient(val *models.Client) {
 		})
 		return
 	}
-
-	//c.Reply().Ok().JSON(response)
-	//aah.App().Validate(val)
 
 	result, err := db.Exec("insert into clients (first_name, last_name, birth_date, gender, email, address) values ($1, $2, $3, $4, $5, $6)",
 		val.Firstname, val.Lastname, val.Birthday, val.Gender, val.Email, val.Address)
@@ -148,97 +116,87 @@ func (c *ValueController) AddClient(val *models.Client) {
 func (c *ValueController) GetClients(id int, search string, sorting string) {
 	var db = database.Instance
 
-	search_query := " ";
-	//fmt.Println(order)
+	searchQuery := " ";
+	
 	if(search != ""){
 		var re = regexp.MustCompile(` `)
 		s := re.ReplaceAllString(search, `%`)
 
-		search_query = `AND first_name || ' ' || last_name LIKE '%%%v%%'`
-		search_query = fmt.Sprintf(search_query, s)
+		searchQuery = `AND first_name || ' ' || last_name LIKE '%%%v%%'`
+		searchQuery = fmt.Sprintf(searchQuery, s)
 	}
 	if(sorting == ""){
 		sorting="id ASC"
 	}
-	//var sqlStatement = `select * from clients FETCH FIRST 10 ROWS ONLY` //STANDART RETURN 10 ROWS
-	//var sqlStatement = fmt.Sprintf("select * FROM clients where id >= %v AND first_name LIKE '%Eri%' ORDER BY ID ASC FETCH FIRST 10 ROWS ONLY", id)
-	//var sqlStatement = fmt.Sprintf(`select * from clients where id >= $1 %v ORDER BY id FETCH FIRST 10 ROWS ONLY`, search_query)
-	var sqlStatement = fmt.Sprintf(`SELECT t.id, t.first_name, t.last_name, t.birth_date, t.gender, t.email, t.address FROM (SELECT *, row_number() OVER(ORDER BY %v) AS row FROM clients WHERE id>0 %v) t WHERE t.row BETWEEN ($1 - 1) * 10 + 1 AND $1 * 10`, sorting, search_query)
 
+	var howManyPages = fmt.Sprintf(`SELECT COUNT(*) FROM clients WHERE id > 0 %v`, searchQuery)
 
-	//var how_many_pages = fmt.Sprintf(`SELECT t.id FROM (SELECT *, row_number() OVER(ORDER BY id) AS row FROM clients WHERE id > 0 %v) t WHERE t.row %% 10 = 0`, search_query)
-	//var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
-	var how_many_pages = fmt.Sprintf(`SELECT t.row FROM (SELECT *, row_number() OVER(ORDER BY id ASC) AS row FROM clients WHERE id > 0 %v ORDER BY %v) t WHERE t.row %% 10 = 0`, search_query, sorting)
+	pages, err := db.Query(howManyPages)
+	if err != nil {
+		panic(err)
+	}
+	defer pages.Close()
+
+	var pagesCount int
+	for pages.Next() {
+	switch err := pages.Scan(&pagesCount); err {
+	case sql.ErrNoRows:
+		log.Print("Could not select any page")
+	case nil:
+		
+	default:
+	  panic(err)
+		}
+	}	
+
+	totalPage := (pagesCount + 10 - 1) / 10
+
+	var sqlStatement = fmt.Sprintf(`SELECT t.id, t.first_name, t.last_name, t.birth_date, t.gender, t.email, t.address FROM (SELECT *, row_number() OVER(ORDER BY %v) AS row FROM clients WHERE id>0 %v) t WHERE t.row BETWEEN ($1 - 1) * 10 + 1 AND $1 * 10`, sorting, searchQuery)
+
 	rows, err := db.Query(sqlStatement, id)
 	if err != nil {
 		panic(err)
-
 	}
-	pages, err := db.Query(how_many_pages)
-	if err != nil {
-
-		panic(err)
-
-	}
-
-	defer pages.Close()
 	defer rows.Close()
-
-	ids := []models.Pagination{}
-
-	for pages.Next() {
-		id_one := models.Pagination{}
-		err := pages.Scan(&id_one.ID)
-		if err != nil {
-			continue
-		}
-		ids = append(ids, id_one)
-	}
-
-
 
 	clients := []models.Client{}
 	for rows.Next() {
-		single_client := models.Client{}
-		//spew.Dump(single_client.Birthday.String())
-		err := rows.Scan(&single_client.ID, &single_client.Firstname, &single_client.Lastname, &single_client.Birthday, &single_client.Gender, &single_client.Email, &single_client.Address)
+		singleClient := models.Client{}
+		err := rows.Scan(&singleClient.ID, &singleClient.Firstname, &singleClient.Lastname, &singleClient.Birthday, &singleClient.Gender, &singleClient.Email, &singleClient.Address)
 		if err != nil {
 			continue
 		}
-		clients = append(clients, single_client)
+		clients = append(clients, singleClient)
 	}
 
-	json_clients, err := json.Marshal(clients)
+	jsonClients, err := json.Marshal(clients)
 	if err != nil {
 	}
-	json_pages, err := json.Marshal(ids)
-	if err != nil {
-	}
-	response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, string(json_pages), string(json_clients))
 
-	//fmt.Sprintf(jsonData);
+	response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, totalPage, string(jsonClients))
+
 	c.Reply().Ok().JSON(response)
 	return
 }
 
 func ValidateUser(val *models.Client, validation_type string) map[string]string {
 
-	check_data := make(map[string]bool)
+	checkData := make(map[string]bool)
 	errors := make(map[string]string)
 
-	check_data["Email"] = aah.App().ValidateValue(val.Email, "email,required")
-	check_data["Firstname"] = aah.App().ValidateValue(val.Firstname, "min=2,max=100,required")
-	check_data["Lastname"] = aah.App().ValidateValue(val.Lastname, "min=2,max=100,required")
-	check_data["Gender"] = aah.App().ValidateValue(val.Gender, "oneof=male female|oneof=MALE FEMALE")
-	check_data["Birthday"] = aah.App().ValidateValue(val.Birthday.String(), "age")
-	check_data["Address"] = aah.App().ValidateValue(val.Address, "max=200")
+	checkData["Email"] = aah.App().ValidateValue(val.Email, "email,required")
+	checkData["Firstname"] = aah.App().ValidateValue(val.Firstname, "min=2,max=100,required")
+	checkData["Lastname"] = aah.App().ValidateValue(val.Lastname, "min=2,max=100,required")
+	checkData["Gender"] = aah.App().ValidateValue(val.Gender, "oneof=male female|oneof=MALE FEMALE")
+	checkData["Birthday"] = aah.App().ValidateValue(val.Birthday.String(), "age")
+	checkData["Address"] = aah.App().ValidateValue(val.Address, "max=200")
+
 	if(validation_type=="add"){
-		//check_data["ID"] = aah.App().ValidateValue(val.Email, "numeric,required")
-		check_data["EmailRegistr"] = aah.App().ValidateValue(val.Email, "emailRegistered,required")
+		checkData["EmailRegistr"] = aah.App().ValidateValue(val.Email, "emailRegistered,required")
 	}
 
-	spew.Dump(check_data)
-	for k, v := range check_data {
+	spew.Dump(checkData)
+	for k, v := range checkData {
 		if v != true {
 			switch k {
 			case "Email":
@@ -261,71 +219,3 @@ func ValidateUser(val *models.Client, validation_type string) map[string]string 
 
 	return errors
 }
-
-
-// List method returns all the values.
-//func (c *ValueController) List() {
-//
-//}
-
-// Index method returns value for given key.
-// If key not found then returns 404 NotFound error.
-//func (c *ValueController) Index() {
-//
-//	c.Reply().NotFound().JSON(aah.Data{
-//		"message": "Value not exists",
-//	})
-//}
-
-// Create method creates new entry in the values map with given payload.
-// If key already exists then returns 409 Conflict error.
-//func (c *ValueController) Create(val *models.Value) {
-//	if _, found := values[val.Key]; found {
-//		c.Reply().Conflict().JSON(aah.Data{
-//			"message": "Key already exists",
-//		})
-//		return
-//	}
-//
-//	// Add it to values map
-//	values[val.Key] = val
-//	newResourceURL := fmt.Sprintf("%s:%s", c.Req.Scheme, c.RouteURL("value_get", val.Key))
-//	c.Reply().Created().
-//		Header(ahttp.HeaderLocation, newResourceURL).
-//		JSON(aah.Data{
-//			"key": val.Key,
-//		})
-//}
-
-// Update method updates value entry on map for given key and Payload.
-// If key not exists then returns 400 BadRequest error.
-//func (c *ValueController) Update(key string, val *models.Value) {
-//	if r, found := values[key]; found {
-//		r.Value = val.Value
-//		values[key] = r
-//		c.Reply().Ok().JSON(aah.Data{
-//			"message": "Value updated successfully",
-//		})
-//		return
-//	}
-//
-//	c.Reply().BadRequest().JSON(aah.Data{
-//		"message": "Invalid input",
-//	})
-//}
-//
-//// Delete method deletes value for given key.
-//// If key not exists then returns 400 BadRequest error.
-//func (c *ValueController) Delete(key string) {
-//	if _, found := values[key]; found {
-//		delete(values, key)
-//		c.Reply().Ok().JSON(aah.Data{
-//			"message": "Value deleted successfully",
-//		})
-//		return
-//	}
-//
-//	c.Reply().BadRequest().JSON(aah.Data{
-//		"message": "Invalid input",
-//	})
-//}
