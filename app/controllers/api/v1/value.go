@@ -173,8 +173,6 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 	if err != nil {
 	}
 
-	//response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, totalPage, string(jsonClients))
-
 	c.Reply().JSON(aah.Data{
 		"pages": totalPage,
 		"data":  string(jsonClients),
