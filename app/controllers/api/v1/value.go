@@ -117,7 +117,7 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 	var db = database.Instance
 
 	searchQuery := " ";
-	
+
 	if(search != ""){
 		var re = regexp.MustCompile(` `)
 		s := re.ReplaceAllString(search, `%`)
@@ -149,7 +149,7 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 		}
 	}	
 
-	totalPage := (pagesCount + 10 - 1) / 10
+	totalPage := countPages(10, pagesCount);
 
 	var sqlStatement = fmt.Sprintf(`SELECT t.id, t.first_name, t.last_name, t.birth_date, t.gender, t.email, t.address FROM (SELECT *, row_number() OVER(ORDER BY %v) AS row FROM clients WHERE id>0 %v) t WHERE t.row BETWEEN ($1 - 1) * 10 + 1 AND $1 * 10`, sorting, searchQuery)
 
@@ -173,10 +173,17 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 	if err != nil {
 	}
 
-	response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, totalPage, string(jsonClients))
+	//response := fmt.Sprintf(`{"pages" : %v, "data" : %v}`, totalPage, string(jsonClients))
 
-	c.Reply().Ok().JSON(response)
+	c.Reply().JSON(aah.Data{
+		"pages": totalPage,
+		"data":  string(jsonClients),
+	})
+	
 	return
+}
+func countPages(totalPages int, items int) int{
+	return (items + totalPages - 1) / totalPages
 }
 
 func ValidateUser(val *models.Client, validation_type string) map[string]string {

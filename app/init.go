@@ -6,14 +6,13 @@ package main
 
 import (
 	"aahframe.work"
-	// Registering HTML minifier
 		"test-task/app/database"
 	_ "aahframe.work/minify/html"
     "time"
     "gopkg.in/go-playground/validator.v9"
     "fmt"
-		"strings"
-		"database/sql"
+	"strings"
+	"database/sql"
 
 )
 

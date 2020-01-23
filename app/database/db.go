@@ -42,6 +42,7 @@ func CloseTransaction(id int){
     panic(err)
   }
   delete(ActiveIDS, id);
+  return
 }
 
 func CommitTransaction(id int, tx *sql.Tx) (){
@@ -50,6 +51,7 @@ func CommitTransaction(id int, tx *sql.Tx) (){
   		panic(err)
   	}
     delete(ActiveIDS, id);
+    return
 }
 
 func ConnectTransaction(id int) (*sql.Tx){

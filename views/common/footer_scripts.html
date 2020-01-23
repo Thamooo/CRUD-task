@@ -11,6 +11,7 @@
     integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
     crossorigin="anonymous"></script>
   <script src="/static/js/jquery-dateformat.min.js"></script>
+  <script src="/static/js/notify.js"></script>
   <!-- CUSTOM SCRIPTS -->
   <script>
     var id_torender = {'id' : 1};
@@ -44,18 +45,9 @@
               type : 'GET',
               data : $.param(query_data),
               success: function(result) {
-                 result = JSON.parse(result);
+                 result.data = JSON.parse(result.data);
                  console.log(result)
                  $('.pagination').html(null)
-                 //$('.pagination').append('<li class="page-item"><a first_ID="1" class="page-link" href="#">'+1+'</a></li>')
-
-                //  if(result.pages.length > 1){
-                //  $.each(result.pages, function(key, value){
-                //   key = key+2
-                //   $('.pagination').append('<li class="page-item"><a first_ID="'+key+'" class="page-link" href="#">'+key+'</a></li>')
-
-                //  })
-                //  }
 
                  for(i=1; i<=result.pages; i++){
                   $('.pagination').append('<li class="page-item"><a first_ID="'+i+'" class="page-link" href="#">'+i+'</a></li>')
@@ -83,31 +75,20 @@
             switch (result.success) {
               case false:
 
-                tools.Hide_alert($('.danger'))
-                tools.Hide_alert($('.success'))
                 if(result.errors != null){
                 $.each(result.errors, function(key, value) {
                   console.log(value);
-                  //console.log( + " .error")
-                  var errorHolder = edit_client_fields[key].find('.danger');
-                  errorHolder.html(value)
-                  tools.Show_alert(errorHolder, 'danger')
-                  tools.Hide_alert($('.success'))
+                  $.notify(value);
 
                 });
               }else{
-                $('#edit_client .success').html('Internal server error')
-                tools.Show_alert($('#edit_client .success'), 'danger')
+                $.notify('Internal server error');
               }
               break;
               case true:
-
-                  $('#edit_client .success').html('Client successfuly edited')
-                  tools.Show_alert($('#edit_client .success'), 'success')
-                  tools.Hide_alert($('.danger'))
                   ajaxOperations.Get_clients_default(id_torender);
-                  tools.Hide_alert($('#edit_client .success'))
                   $('#edit_client').modal('hide');
+                  $.notify('User successfuly edited', 'success');
               break;
             }
             console.log(result)
@@ -147,12 +128,14 @@
           data: $.param(id),
           success: function(result) {
 
-              result = JSON.parse(result);
+              
               console.log(result)
               switch (result.success) {
               case false:
+                $.notify(result.errors);
               break;
               case true:
+              result.data = JSON.parse(result.data);
               $('#edit_client').modal('toggle');
               $.each(edit_client_fields, function(key, value){
                   if(key=="Gender"){
@@ -356,23 +339,15 @@
               if(result.errors != null){
               $.each(result.errors, function(key, value) {
                 console.log(value);
-                //console.log( + " .error")
-                var errorHolder = add_client_fields[key].find('.danger');
-                errorHolder.html(value)
-                tools.Show_alert(errorHolder, 'danger')
-                tools.Hide_alert($('.success'))
+                $.notify(value);
 
               });
             }else{
-              $('#add_client .success').html('Internal server error')
-              tools.Show_alert($('#add_client .success'), 'danger')
+              $.notify("Internal server error");
             }
             break;
             case true:
-
-                $('#add_client .success').html('Client successfuly added')
-                tools.Show_alert($('#add_client .success'), 'success')
-                tools.Hide_alert($('.danger'))
+                $.notify("Client successfuly added", "success");
                 ajaxOperations.Get_clients_default(id_torender);
             break;
           }

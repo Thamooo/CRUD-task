@@ -6,7 +6,6 @@ import(
   "test-task/app/database"
   "log"
   "encoding/json"
-  "fmt"
 )
 
 type SessionController struct {
@@ -24,7 +23,6 @@ func (c *SessionController) ReserveSession(id *models.ReservedID) {
         })
         return
       }
-
     }
 
     tx := database.ConnectTransaction(id.ID)
@@ -37,27 +35,37 @@ func (c *SessionController) ReserveSession(id *models.ReservedID) {
 
     var client models.Client
     for rows.Next() {
-  		single_client := models.Client{}
+  		singleСlient := models.Client{}
 
-  		err := rows.Scan(&single_client.ID, &single_client.Firstname, &single_client.Lastname, &single_client.Birthday, &single_client.Gender, &single_client.Email, &single_client.Address)
+  		err := rows.Scan(&singleСlient.ID, &singleСlient.Firstname, &singleСlient.Lastname, &singleСlient.Birthday, &singleСlient.Gender, &singleСlient.Email, &singleСlient.Address)
   		if err != nil {
-  			return
+  			panic(err)
   		}
-  		client = single_client
+  		client = singleСlient
   	}
 
       json_client, err := json.Marshal(client)
       if err != nil {
       }
 
-      response := fmt.Sprintf(`{"success" : true, "data" : %v}`, string(json_client))
-
-    	c.Reply().Ok().JSON(response)
-
+      c.Reply().JSON(aah.Data{
+        "success": true,
+        "data":  string(json_client),
+      })
+      
+      return
 }
 
 func (c *SessionController) RollbackSession(id *models.ReservedID) {
 
-    database.CloseTransaction(id.ID)
+    
+    for k := range (database.ActiveIDS){
+      log.Print(k)
+      if(k == id.ID){
+        database.CloseTransaction(id.ID)
+        return
+      }
+
+    }
 
 }
