@@ -2,17 +2,13 @@ package database
 
 import (
 	"database/sql"
-	aah "aahframe.work"
+	"aahframe.work"
 	_ "github.com/lib/pq"
   "github.com/juju/errors"
-  "context"
 )
 
 
 var Instance *sql.DB
-var ctx context.Context
-var TXconnection *sql.Tx
-var Stmt *sql.Stmt
 var ActiveIDS = make(map[int]*sql.Tx) //LIST OF CURRENTLY EDITABLE ID
 
 func Connect(_ *aah.Event) {
