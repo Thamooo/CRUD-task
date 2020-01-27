@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"strings"
 	"database/sql"
 	"aahframe.work"
 	"encoding/json"
@@ -94,7 +93,7 @@ func (c *ValueController) AddClient(val *models.Client) {
 	}
 
 	result, err := db.Exec("insert into clients (first_name, last_name, birth_date, gender, email, address) values ($1, $2, $3, $4, $5, $6)",
-	strings.Title(strings.ToLower(val.Firstname)), strings.Title(strings.ToLower(val.Lastname)), val.Birthday, val.Gender, val.Email, val.Address)
+	val.Firstname, val.Lastname, val.Birthday, val.Gender, val.Email, val.Address)
 
 
 	rowsAffected, err := result.RowsAffected()
@@ -123,7 +122,7 @@ func (c *ValueController) GetClients(id int, search string, sorting string) {
 		var re = regexp.MustCompile(` `)
 		s := re.ReplaceAllString(search, `%`)
 
-		searchQuery = `AND first_name || ' ' || last_name LIKE '%%%v%%'`
+		searchQuery = `AND Lower(first_name) || ' ' || Lower(last_name) LIKE '%%%v%%'`
 		searchQuery = fmt.Sprintf(searchQuery, s)
 	}
 	if(sorting == ""){

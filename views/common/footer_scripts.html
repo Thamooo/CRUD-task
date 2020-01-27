@@ -104,6 +104,9 @@
           success: function(result) {
              console.log(result)
              ajaxOperations.Get_clients_default(id_torender);
+             if(result.success == true){
+              $.notify('User successfuly deleted', 'success');
+             }
           }
 
         })
@@ -186,9 +189,6 @@
   })
   $('#sort_name, #sort_order, #search_main').on('change keypress keyup',function(){
       var str = $('#search_main').val()
-      str = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-        return letter.toUpperCase();
-      });
       id_torender['sorting']=$('#sort_name').val() + " " + $('#sort_order').val();
       id_torender['search']=str;
       id_torender['id']=1;
